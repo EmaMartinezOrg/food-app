@@ -1,5 +1,9 @@
 # food-app
 
+Description:
+
+Front UI for a food shopping cart app.
+
 Steps:
  
 - Pull the repo
