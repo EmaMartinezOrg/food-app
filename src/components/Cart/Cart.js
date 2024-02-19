@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useMemo, memo } from 'react';
 
 import classes from './Cart.module.css';
 
@@ -7,7 +7,7 @@ import CartContext from '../../store/cart-context';
 import CartItem from './CartItem';
 import Checkout from './Checkout';
 
-const Cart = props => {
+const Cart = memo(props => {
     const [isCheckout, setIsCheckout] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [didSubmit, setDidSubmit] = useState(false);
@@ -41,7 +41,7 @@ const Cart = props => {
         cartCtx.clearCart();
     };
 
-    const cartItems =
+    const cartItems = useMemo(() => (
         <ul className={classes['cart-items']}>
             {cartCtx.items.map((item) => (
                 <CartItem
@@ -54,14 +54,16 @@ const Cart = props => {
                 />
             ))}
         </ul>
+    ), [cartCtx.items]);
 
-    const modalActions =
+    const modalActions = useMemo(() => (
         <div className={classes.actions}>
             <button className={classes['button--alt']} onClick={props.onClose}>Close</button>
             {hasItems && <button className={classes.button} onClick={orderHandler}>Order</button>}
         </div>
+    ), [hasItems, props.onClose]);
 
-    const cartModalCOntent =(
+    const cartModalContent = useMemo(() => (
         <React.Fragment>
             {cartItems}
             <div className={classes.total}>
@@ -71,7 +73,7 @@ const Cart = props => {
             {isCheckout && <Checkout onConfirm={submitOrderHandler} onCancel={props.onClose} />}
             {!isCheckout && modalActions}
         </React.Fragment>
-    );
+    ), [cartItems, isCheckout, modalActions, props.onClose, submitOrderHandler, totalAmount]);
 
     const isSubmittingModalContent = <p>Sending order data...</p>;
     const didSubmitModalContent = (
@@ -83,11 +85,11 @@ const Cart = props => {
 
     return (
         <Modal onClose={props.onClose}>
-            {!isSubmitting && !didSubmit && cartModalCOntent}
+            {!isSubmitting && !didSubmit && cartModalContent}
             {isSubmitting && isSubmittingModalContent}
             {!isSubmitting && didSubmit && didSubmitModalContent}
         </Modal>
     );
-};
+});
 
 export default Cart;
